@@ -30,7 +30,14 @@ public class ClerkJwksProvider {
         }
 
         refreshKeys();
-        return keyCache.get(kid);
+
+        PublicKey publicKey = keyCache.get(kid);
+        if(publicKey == null) {
+            throw new IllegalArgumentException(
+                    "No public key found for kid:" + kid
+            );
+        }
+        return publicKey;
     }
 
     private void refreshKeys() throws Exception{

@@ -71,6 +71,14 @@ public class ClerkJwtAuthFilter extends OncePerRequestFilter {
 
             PublicKey publicKey = jwksProvider.getPublicKey(kid);
 
+            if (publicKey == null) {
+                response.sendError(
+                        HttpServletResponse.SC_FORBIDDEN,
+                        "No matching public key found for kid: " + kid
+                );
+                return;
+            }
+
             //verify the token
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(publicKey)
@@ -87,6 +95,7 @@ public class ClerkJwtAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             filterChain.doFilter(request, response);
         } catch (Exception e) {
+            e.printStackTrace();
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid JWT token: "+e.getMessage());
             return;
         }
